@@ -2172,6 +2172,26 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         }
     }
 
+    @FixFor( "MODE-2110" )
+    @Test
+    public void shouldReceiveNodeAddedEventWhenRegisteredToReceiveEventsBasedUponNodeTypeName() throws Exception {
+        SimpleListener listener = new SimpleListener(1, 1, Event.NODE_ADDED);
+        session.getWorkspace()
+               .getObservationManager()
+               .addEventListener(listener, Event.NODE_ADDED, null, true, null, new String[]{UNSTRUCTURED}, false);
+        Node addedNode = session.getRootNode().addNode("node1", UNSTRUCTURED);
+        // event handling
+        listener.waitForEvents();
+        removeListener(listener);
+
+        // tests
+        checkResults(listener);
+        assertTrue("Path for added node is wrong: actual=" + listener.getEvents().get(0).getPath() + ", expected="
+                   + addedNode.getPath(),
+                   containsPath(listener, addedNode.getPath()));
+
+    }
+
     protected void assertNoRepositoryNamespace( String uri,
                                                 String prefix ) throws RepositoryException {
         NamespaceRegistry registry = session.getWorkspace().getNamespaceRegistry();
