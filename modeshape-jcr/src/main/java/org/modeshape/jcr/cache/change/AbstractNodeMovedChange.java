@@ -23,62 +23,50 @@
  */
 package org.modeshape.jcr.cache.change;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
-import org.modeshape.jcr.value.ValueFactory;
-import org.modeshape.jcr.value.Path.Segment;
 import org.modeshape.jcr.value.PathFactory;
+import org.modeshape.jcr.value.ValueFactory;
 
 /**
- * 
+ * Abstract base class for all internal events.
  */
-public class NodeRenamed extends AbstractNodeMovedChange {
+public abstract class AbstractNodeMovedChange extends AbstractNodeChange {
 
     private static final long serialVersionUID = 1L;
 
-    private final Segment oldSegment;
+    /**
+     * The keys which provide extra information in case of a move
+     */
+    public static final String MOVE_FROM_KEY = "srcAbsPath";
+    public static final String MOVE_TO_KEY = "destAbsPath";
 
-    public NodeRenamed( NodeKey key,
-                        Path newPath,
-                        Segment oldSegment ) {
-        super(key, newPath);
-        this.oldSegment = oldSegment;
-        assert !this.oldSegment.equals(newPath.getLastSegment());
+    /**
+     * The keys which provide extra information in case of a reorder
+     */
+    public static final String ORDER_DEST_KEY = "destChildRelPath";
+    public static final String ORDER_SRC_KEY = "srcChildRelPath";
+
+    protected AbstractNodeMovedChange( NodeKey key,
+                                       Path path ) {
+        super(key, path);
     }
 
     /**
-     * Get the old segment for the node.
+     * Get the old path for the node, if it is known
      * 
-     * @return the old segment; never null
+     * @return the old path; may be null if it is not known
      */
-    public Segment getOldSegment() {
-        return oldSegment;
-    }
+    public abstract Path getOldPath(PathFactory paths);
 
     /**
-     * { @inherit }
+     * Return a map of additional information to be passed along in Events
+     * @param stringFactory
+     * @param oldPath
+     * @param newPath
+     * @return Map<String, String>
      */
-    @Override
-    public Path getOldPath(PathFactory paths) {
-        return paths.create(this.path.subpath(0, this.path.size() - 1), getOldSegment());
-    }
-
-    /**
-     * { @inherit }
-     */
-    @Override
-    public Map<String, String> getJcrEventInfo(ValueFactory<String> strings, Path oldPath, Path newPath) {
-        Map<String, String> info = new HashMap<String, String>();
-        info.put(MOVE_FROM_KEY, strings.create(oldPath));
-        info.put(MOVE_TO_KEY, strings.create(newPath));
-        return info;
-    }
-
-    @Override
-    public String toString() {
-        return "Renamed node '" + this.getKey() + "' to \"" + path + "\" (was '" + oldSegment + "')";
-    }
+    public abstract Map<String, String> getJcrEventInfo(ValueFactory<String> stringFactory, Path oldPath, Path newPath);
 }

@@ -69,6 +69,8 @@ import org.modeshape.jcr.JcrObservationManager.JcrEventBundle;
 import org.modeshape.jcr.RepositoryConfiguration.FieldName;
 import org.modeshape.jcr.api.observation.PropertyEvent;
 import org.modeshape.jcr.api.value.DateTime;
+import org.modeshape.jcr.cache.change.AbstractNodeMovedChange;
+
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -1002,10 +1004,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(oldPath));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(newPath));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(oldPath));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(newPath));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(nullValue()));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + newPath, containsPath(moveNodeListener, newPath));
         assertTrue("Path for new location of added node is wrong: actual=" + addNodeListener.getEvents().get(0).getPath()
@@ -1051,10 +1053,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(oldPath));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(newPath));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(oldPath));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(newPath));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(nullValue()));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + newPath, containsPath(moveNodeListener, newPath));
         assertTrue("Path for new location of added node is wrong: actual=" + addNodeListener.getEvents().get(0).getPath()
@@ -1105,10 +1107,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(oldPath));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(newPath));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(oldPath));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(newPath));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + newPath, containsPath(moveNodeListener, newPath));
         assertTrue("Path for new location of added node is wrong: actual=" + addNodeListener.getEvents().get(0).getPath()
@@ -1158,10 +1160,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is("node3"));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is("node2"));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is("node3"));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is("node2"));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + n3.getPath(), containsPath(moveNodeListener, n3.getPath()));
         assertTrue("Added reordered node has wrong path: actual=" + addNodeListener.getEvents().get(0).getPath() + ", expected="
@@ -1207,10 +1209,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(node1 + "[3]"));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(node1 + "[2]"));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(node1 + "[3]"));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(node1 + "[2]"));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + getRoot().getPath() + "/" + node1 + "[2]",
                    containsPath(moveNodeListener, getRoot().getPath() + "/" + node1 + "[2]"));
@@ -1260,10 +1262,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         List<Event> moveNodeListenerEvents = moveNodeListener.getEvents();
         assertFalse(moveNodeListenerEvents.isEmpty());
         Map<String, String> info = moveNodeListenerEvents.get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(node1 + "[2]"));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(node1 + "[2]"));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(nullValue()));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListenerEvents.get(0).getPath()
                    + ", expected=" + getRoot().getPath() + "/" + node1 + "[3]",
                    containsPath(moveNodeListener, getRoot().getPath() + "/" + node1 + "[3]"));
@@ -1819,10 +1821,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(oldPath));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(targetPath));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(oldPath));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(targetPath));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(nullValue()));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + targetPath, containsPath(moveNodeListener, targetPath));
         assertTrue("Path for new location of moved node is wrong: actual=" + addNodeListener.getEvents().get(0).getPath()
@@ -1867,10 +1869,10 @@ public final class JcrObservationManagerTest extends SingleUseAbstractTest {
         checkResults(addNodeListener);
         checkResults(removeNodeListener);
         Map<String, String> info = moveNodeListener.getEvents().get(0).getInfo();
-        assertThat(info.get(JcrObservationManager.MOVE_FROM_KEY), is(oldPath));
-        assertThat(info.get(JcrObservationManager.MOVE_TO_KEY), is(renamedPath));
-        assertThat(info.get(JcrObservationManager.ORDER_SRC_KEY), is(nullValue()));
-        assertThat(info.get(JcrObservationManager.ORDER_DEST_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_FROM_KEY), is(oldPath));
+        assertThat(info.get(AbstractNodeMovedChange.MOVE_TO_KEY), is(renamedPath));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_SRC_KEY), is(nullValue()));
+        assertThat(info.get(AbstractNodeMovedChange.ORDER_DEST_KEY), is(nullValue()));
         assertTrue("Path for new location of moved node is wrong: actual=" + moveNodeListener.getEvents().get(0).getPath()
                    + ", expected=" + renamedPath, containsPath(moveNodeListener, renamedPath));
         assertTrue("Path for renamed node is wrong: actual=" + addNodeListener.getEvents().get(0).getPath() + ", expected="

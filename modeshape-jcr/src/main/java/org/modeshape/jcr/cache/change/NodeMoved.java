@@ -23,13 +23,18 @@
  */
 package org.modeshape.jcr.cache.change;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
+import org.modeshape.jcr.value.PathFactory;
+import org.modeshape.jcr.value.ValueFactory;
 
 /**
  * 
  */
-public class NodeMoved extends AbstractNodeChange {
+public class NodeMoved extends AbstractNodeMovedChange {
 
     private static final long serialVersionUID = 1L;
 
@@ -79,12 +84,22 @@ public class NodeMoved extends AbstractNodeChange {
     }
 
     /**
-     * Get the old path for the node, if it is known
-     * 
-     * @return the old path; may be null if it is not known
+     * { @inherit }
      */
-    public Path getOldPath() {
+    @Override
+    public Path getOldPath(PathFactory paths) {
         return oldPath;
+    }
+
+    /**
+     * { @inherit }
+     */
+    @Override
+    public Map<String, String> getJcrEventInfo(ValueFactory<String> strings, Path oldPath, Path newPath) {
+        Map<String, String> info = new HashMap<String, String>();
+        info.put(MOVE_FROM_KEY, strings.create(oldPath));
+        info.put(MOVE_TO_KEY, strings.create(newPath));
+        return info;
     }
 
     @Override
