@@ -775,7 +775,7 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
          * listener wants to handle this event. If <code>null</code> or empty than this listener wants to handle nodes with any
          * UUID.
          */
-        private final String[] uuids;
+        private final Set<String> uuids;
 
         /**
          * @param delegate the JCR listener
@@ -799,9 +799,12 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
             this.eventTypes = eventTypes;
             this.absPath = absPath;
             this.isDeep = isDeep;
-            this.uuids = uuids;
-            if (this.uuids != null) {
-                Arrays.sort(this.uuids);
+            if (uuids == null) {
+            	this.uuids = null;
+            } else if (uuids.length == 0){
+            	this.uuids = Collections.emptySet();
+            } else {
+            	this.uuids = new HashSet<String>(Arrays.asList(uuids));
             }
             this.nodeTypeNames = nodeTypeNames;
             this.noLocal = noLocal;
@@ -989,8 +992,8 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
         }
 
         private boolean shouldReject( AbstractNodeChange nodeChange ) {
-            return !acceptBasedOnNodeTypeName(nodeChange) || !acceptBasedOnPath(nodeChange) || !acceptBasedOnUuid(nodeChange)
-                   || !acceptBasedOnPermission(nodeChange) || !acceptIfLockChange(nodeChange);
+            return !acceptBasedOnUuid(nodeChange)  || !acceptBasedOnPath(nodeChange) || !acceptBasedOnPermission(nodeChange)
+                   || !acceptIfLockChange(nodeChange)|| !acceptBasedOnNodeTypeName(nodeChange);
         }
 
         /**
@@ -1107,16 +1110,15 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
          */
         private boolean acceptBasedOnUuid( AbstractNodeChange change ) {
             // JSR_283#12.5.3.4.2
-            if (this.uuids != null && this.uuids.length == 0) {
+        	if (this.uuids == null) {
+        		return true;
+        	}
+            if (this.uuids.isEmpty()) {
                 return false;
             }
 
-            if ((this.uuids != null) && (this.uuids.length > 0)) {
-                String matchUuidString = nodeIdentifier(change.getKey());
-                return Arrays.binarySearch(this.uuids, matchUuidString) >= 0;
-            }
-
-            return true;
+            String matchUuidString = nodeIdentifier(change.getKey());
+            return this.uuids.contains(matchUuidString);
         }
 
         private Path parentNodePathOfChange( AbstractNodeChange change ) {
