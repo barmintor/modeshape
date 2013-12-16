@@ -46,8 +46,9 @@ public abstract class AbstractSequencingChange extends AbstractNodeChange {
                                         String outputPath,
                                         String userId,
                                         String selectedPath,
-                                        String sequencerName ) {
-        super(sequencedNodeKey, sequencedNodePath);
+                                        String sequencerName,
+                                        int jcrEventType) {
+        super(sequencedNodeKey, sequencedNodePath, jcrEventType);
         assert outputPath != null;
         assert userId != null;
         assert selectedPath != null;

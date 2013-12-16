@@ -23,6 +23,8 @@
  */
 package org.modeshape.jcr.cache.change;
 
+import javax.jcr.observation.Event;
+
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
 import org.modeshape.jcr.value.Property;
@@ -40,7 +42,7 @@ public class PropertyChanged extends AbstractPropertyChange {
                             Path nodePath,
                             Property newProperty,
                             Property oldProperty ) {
-        super(key, nodePath, newProperty);
+        super(key, nodePath, newProperty, Event.PROPERTY_CHANGED);
         this.oldProperty = oldProperty;
     }
 

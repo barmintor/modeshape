@@ -23,6 +23,8 @@
  */
 package org.modeshape.jcr.cache.change;
 
+import javax.jcr.observation.Event;
+
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
 
@@ -38,7 +40,7 @@ public class NodeRemoved extends AbstractNodeChange {
     public NodeRemoved( NodeKey key,
                         NodeKey parentKey,
                         Path path ) {
-        super(key, path);
+        super(key, path, Event.NODE_REMOVED);
         this.parentKey = parentKey;
     }
 

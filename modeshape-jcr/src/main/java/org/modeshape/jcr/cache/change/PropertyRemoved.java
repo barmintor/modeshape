@@ -23,6 +23,8 @@
  */
 package org.modeshape.jcr.cache.change;
 
+import javax.jcr.observation.Event;
+
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
 import org.modeshape.jcr.value.Property;
@@ -37,7 +39,7 @@ public class PropertyRemoved extends AbstractPropertyChange {
     public PropertyRemoved( NodeKey key,
                             Path nodePath,
                             Property property ) {
-        super(key, nodePath, property);
+        super(key, nodePath, property, Event.PROPERTY_REMOVED);
     }
 
     @Override

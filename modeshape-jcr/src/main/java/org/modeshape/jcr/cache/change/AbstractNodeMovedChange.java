@@ -25,6 +25,8 @@ package org.modeshape.jcr.cache.change;
 
 import java.util.Map;
 
+import javax.jcr.observation.Event;
+
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
 import org.modeshape.jcr.value.PathFactory;
@@ -51,7 +53,7 @@ public abstract class AbstractNodeMovedChange extends AbstractNodeChange {
 
     protected AbstractNodeMovedChange( NodeKey key,
                                        Path path ) {
-        super(key, path);
+        super(key, path, Event.NODE_MOVED);
     }
 
     /**

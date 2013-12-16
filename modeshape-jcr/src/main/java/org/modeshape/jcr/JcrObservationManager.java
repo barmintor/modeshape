@@ -49,11 +49,6 @@ import org.modeshape.jcr.cache.change.AbstractSequencingChange;
 import org.modeshape.jcr.cache.change.Change;
 import org.modeshape.jcr.cache.change.ChangeSet;
 import org.modeshape.jcr.cache.change.ChangeSetListener;
-import org.modeshape.jcr.cache.change.NodeAdded;
-import org.modeshape.jcr.cache.change.NodeMoved;
-import org.modeshape.jcr.cache.change.NodeRemoved;
-import org.modeshape.jcr.cache.change.NodeRenamed;
-import org.modeshape.jcr.cache.change.NodeReordered;
 import org.modeshape.jcr.cache.change.NodeSequenced;
 import org.modeshape.jcr.cache.change.NodeSequencingFailure;
 import org.modeshape.jcr.cache.change.Observable;
@@ -839,10 +834,8 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
             }
 
             if (shouldReject(nodeChange)) {
-            	// fire extra events if listener ignores NodeMoved
-                if (nodeChange instanceof NodeMoved
-                		|| nodeChange instanceof NodeRenamed
-                		|| nodeChange instanceof NodeReordered) {
+            	// fire extra events if listener ignores NodeMoved events
+                if (nodeChange instanceof AbstractNodeMovedChange) {
                     Path newPath = nodeChange.getPath();
                     String nodeId = nodeIdentifier(nodeChange.getKey());
                 	AbstractNodeMovedChange nodeMovedChange = (AbstractNodeMovedChange)nodeChange;
@@ -856,32 +849,20 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
             Path newPath = nodeChange.getPath();
             String nodeId = nodeIdentifier(nodeChange.getKey());
 
-            // node moved
-            if (nodeChange instanceof NodeMoved) {
-                NodeMoved nodeMovedChange = (NodeMoved)nodeChange;
-                Path oldPath = nodeMovedChange.getOldPath(pathFactory());
-                Map<String, String> info = nodeMovedChange.getJcrEventInfo(session.stringFactory(), oldPath, newPath);
-                fireNodeMoved(events, bundle, newPath, nodeId, oldPath, info);
-
-            } else if (nodeChange instanceof NodeRenamed) {
-                NodeRenamed nodeRenamedChange = (NodeRenamed)nodeChange;
-                Path oldPath = nodeRenamedChange.getOldPath(pathFactory());
-                Map<String, String> info = nodeRenamedChange.getJcrEventInfo(session.stringFactory(), oldPath, newPath);
-                fireNodeMoved(events, bundle, newPath, nodeId, oldPath, info);
-
-            } else if (nodeChange instanceof NodeReordered) {
-                NodeReordered nodeReordered = (NodeReordered)nodeChange;
-                Path oldPath = nodeReordered.getOldPath(pathFactory());
-                Map<String, String> info = nodeReordered.getJcrEventInfo(session.stringFactory(), oldPath, newPath);
-                fireNodeMoved(events, bundle, newPath, nodeId, oldPath, info);
-
-            } else if (nodeChange instanceof NodeAdded && eventListenedFor(Event.NODE_ADDED)) {
+            if ((nodeChange.getJcrEventType() & Event.NODE_ADDED) == Event.NODE_ADDED) {
                 // create event for added node
                 events.add(new JcrEvent(bundle, Event.NODE_ADDED, stringFor(newPath), nodeId));
-            } else if (nodeChange instanceof NodeRemoved && eventListenedFor(Event.NODE_REMOVED)) {
+            } else if ((nodeChange.getJcrEventType() & Event.NODE_REMOVED) == Event.NODE_REMOVED) {
                 // create event for removed node
                 events.add(new JcrEvent(bundle, Event.NODE_REMOVED, stringFor(newPath), nodeId));
-            } else if (nodeChange instanceof PropertyChanged && eventListenedFor(Event.PROPERTY_CHANGED)) {
+            } else if (nodeChange instanceof AbstractNodeMovedChange) {
+                    // NodeMoved, NodeRenamed, NodeReordered
+                	AbstractNodeMovedChange nodeMovedChange = (AbstractNodeMovedChange)nodeChange;
+                    Path oldPath = nodeMovedChange.getOldPath(pathFactory());
+                    Map<String, String> info = nodeMovedChange.getJcrEventInfo(session.stringFactory(), oldPath, newPath);
+                    fireNodeMoved(events, bundle, newPath, nodeId, oldPath, info);
+
+            } else if (nodeChange instanceof PropertyChanged) {
                 // create event for changed property
                 PropertyChanged propertyChanged = (PropertyChanged)nodeChange;
                 Name propertyName = propertyChanged.getNewProperty().getName();
@@ -897,7 +878,7 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
 
                 events.add(new JcrPropertyEvent(bundle, Event.PROPERTY_CHANGED, stringFor(propertyPath), nodeId, currentValue,
                                                 oldValue));
-            } else if (nodeChange instanceof PropertyAdded && eventListenedFor(Event.PROPERTY_ADDED)) {
+            } else if (nodeChange instanceof PropertyAdded) {
                 PropertyAdded propertyAdded = (PropertyAdded)nodeChange;
                 Name propertyName = propertyAdded.getProperty().getName();
                 Path propertyPath = pathFactory().create(newPath, stringFor(propertyName));
@@ -908,7 +889,7 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
 
                 events.add(new JcrPropertyEvent(bundle, Event.PROPERTY_ADDED, stringFor(propertyPath), nodeId, currentValue));
 
-            } else if (nodeChange instanceof PropertyRemoved && eventListenedFor(Event.PROPERTY_REMOVED)) {
+            } else if (nodeChange instanceof PropertyRemoved) {
                 // create event for removed property
                 PropertyRemoved propertyRemoved = (PropertyRemoved)nodeChange;
                 Name propertyName = propertyRemoved.getProperty().getName();
@@ -919,14 +900,14 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
                                                                                                                        .getFirstValue();
 
                 events.add(new JcrPropertyEvent(bundle, Event.PROPERTY_REMOVED, stringFor(propertyPath), nodeId, currentValue));
-            } else if (nodeChange instanceof NodeSequenced && eventListenedFor(NODE_SEQUENCED)) {
+            } else if (nodeChange instanceof NodeSequenced) {
                 // create event for the sequenced node
                 NodeSequenced sequencedChange = (NodeSequenced)nodeChange;
 
                 Map<String, Object> infoMap = createEventInfoMapForSequencerChange(sequencedChange);
                 events.add(new JcrEvent(bundle, NODE_SEQUENCED, stringFor(sequencedChange.getOutputNodePath()),
                                         nodeIdentifier(sequencedChange.getOutputNodeKey()), infoMap));
-            } else if (nodeChange instanceof NodeSequencingFailure && eventListenedFor(NODE_SEQUENCING_FAILURE)) {
+            } else if (nodeChange instanceof NodeSequencingFailure) {
                 // create event for the sequencing failure
                 NodeSequencingFailure sequencingFailure = (NodeSequencingFailure)nodeChange;
 
@@ -976,8 +957,8 @@ class JcrObservationManager implements ObservationManager, ChangeSetListener {
         }
 
         private boolean shouldReject( AbstractNodeChange nodeChange ) {
-            return !acceptBasedOnUuid(nodeChange)  || !acceptBasedOnPath(nodeChange) || !acceptBasedOnPermission(nodeChange)
-                   || !acceptIfLockChange(nodeChange)|| !acceptBasedOnNodeTypeName(nodeChange);
+            return !eventListenedFor(nodeChange.getJcrEventType()) || !acceptBasedOnUuid(nodeChange)  || !acceptBasedOnPath(nodeChange)
+            	   || !acceptBasedOnPermission(nodeChange) || !acceptIfLockChange(nodeChange)|| !acceptBasedOnNodeTypeName(nodeChange);
         }
 
         /**

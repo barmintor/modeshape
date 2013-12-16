@@ -45,8 +45,9 @@ public abstract class AbstractPropertyChange extends AbstractNodeChange {
      */
     public AbstractPropertyChange( NodeKey key,
                                    Path nodePath,
-                                   Property property ) {
-        super(key, nodePath);
+                                   Property property,
+                                   int jcrEventType) {
+        super(key, nodePath, jcrEventType);
         this.property = property;
     }
 

@@ -33,15 +33,23 @@ public abstract class AbstractNodeChange extends Change {
 
     private static final long serialVersionUID = 1L;
 
+    private final int jcrEventType;
     private final NodeKey key;
     protected final Path path;
 
     protected AbstractNodeChange( NodeKey key,
-                                  Path path ) {
+                                  Path path) {
+    	this(key, path, 0);
+    }
+
+    protected AbstractNodeChange( NodeKey key,
+                                  Path path,
+                                  int jcrEventType) {
         assert key != null;
         assert path != null;
         this.key = key;
         this.path = path;
+        this.jcrEventType = jcrEventType;
     }
 
     /**
@@ -58,5 +66,13 @@ public abstract class AbstractNodeChange extends Change {
      */
     public NodeKey getKey() {
         return key;
+    }
+
+    /**
+     * 
+     * @return jcrEventType
+     */
+    public int getJcrEventType() {
+    	return jcrEventType;
     }
 }

@@ -24,6 +24,8 @@
 
 package org.modeshape.jcr.cache.change;
 
+import static org.modeshape.jcr.api.observation.Event.Sequencing.NODE_SEQUENCING_FAILURE;
+
 import org.modeshape.jcr.cache.NodeKey;
 import org.modeshape.jcr.value.Path;
 
@@ -48,7 +50,7 @@ public class NodeSequencingFailure extends AbstractSequencingChange {
                                   String selectedPath,
                                   String sequencerName,
                                   Throwable cause ) {
-        super(sequencedNodeKey, sequencedNodePath, outputPath, userId, selectedPath, sequencerName);
+        super(sequencedNodeKey, sequencedNodePath, outputPath, userId, selectedPath, sequencerName, NODE_SEQUENCING_FAILURE);
         assert cause != null;
         this.cause = cause;
     }
